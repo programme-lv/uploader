@@ -1,0 +1,12 @@
+code = "summa"
+name = "Summa"
+version = 1
+
+authors = ["Krišjānis Petručeņa"]
+tags = ["math"]
+
+type = "simple"
+
+time = 1.0
+memory = 64
+
