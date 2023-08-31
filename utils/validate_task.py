@@ -9,6 +9,11 @@ def is_lowercase_alphanum(s: str) -> bool:
     return all(c.islower() or c.isdigit() for c in s)
 
 
+def is_numerical_integer(value):
+    return isinstance(value, int) or \
+        (isinstance(value, str) and value.isdigit())
+
+
 def validate_toml(problem_toml: dict):
     '''Returns True if toml is a valid problem.toml,
     False otherwise'''
@@ -29,9 +34,13 @@ def validate_toml(problem_toml: dict):
     assert problem_toml['type'] == 'simple', \
         f"Invalid type: {problem_toml['type']}"
 
+    assert 1 <= problem_toml['difficulty'] <= 5 and \
+        is_numerical_integer(problem_toml['difficulty']), \
+        f"Invalid difficulty: {problem_toml['difficulty']}"
+
     toml_fields = set(problem_toml.keys())
     for field in ['specification', 'code', 'name', 'time', 'memory',
-                  'type', 'authors', 'tags']:
+                  'type', 'authors', 'tags', 'difficulty']:
         toml_fields.discard(field)
 
     assert len(toml_fields) == 0, \
@@ -59,7 +68,7 @@ def validate_task_fs(task_dirpath, problem_toml):
     # for now just check if there is a statement.md
     # TODO: also check other languages, pdfs
     assert isfile(join(task_dirpath, 'statements',
-                       'markdown', 'lv', 'statement.md')), \
+                       'markdown', 'lv', 'story.md')), \
         "statement.md not found in statements/markdown/lv directory"
 
     # ensure tests exist
@@ -70,7 +79,7 @@ def validate_task_fs(task_dirpath, problem_toml):
     for test in listdir(join(task_dirpath, 'tests')):
         assert not isdir(join(task_dirpath, 'tests', test)), \
             f"Test {test} is a fucking directory"
-        test_pattern = re.compile(r'^\.(in|ans)$')
+        test_pattern = re.compile(r'^.+\.(in|ans)$')
         assert test_pattern.match(test), \
             f"Invalid test filename: {test}"
 
