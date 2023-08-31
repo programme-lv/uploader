@@ -34,6 +34,9 @@ def get_user_id(cursor, username):
 
 
 def get_user_by_username(cursor, username):
+    if not user_exists(cursor, username):
+        return None
+
     '''Returns a user with the given username'''
     cursor.execute('''
         SELECT * FROM users

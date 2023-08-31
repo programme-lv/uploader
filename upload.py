@@ -5,7 +5,7 @@ import toml
 from dotenv import load_dotenv
 from os import getenv, listdir
 from os.path import isdir, join
-from utils.db_interface import flyway_checksum_sum
+from utils.db_interface import flyway_checksum_sum, get_user_by_username
 
 # select sum(checksum) from flyway_schema_history;
 OK_SCHEMA_VERSION = -7075107967
@@ -23,13 +23,18 @@ print(f"Connected to {getenv('DB_NAME')} at " +
 
 with conn.cursor() as cur:
     db_schema_version = flyway_checksum_sum(cur)
-    assert db_schema_version == OK_SCHEMA_VERSION, \
-        f"Database schema version mismatch: {db_schema_version}"
+assert db_schema_version == OK_SCHEMA_VERSION, \
+    f"Database schema version mismatch: {db_schema_version}"
 
 print("Database schema version OK")
 
+OWNER = getenv('OWNER')
+with conn.cursor() as cur:
+    owner = get_user_by_username(cur, OWNER)
 
-AUTHOR = getenv('AUTHOR')
+assert owner is not None, f"OWNER {owner} not found in database"
+print(f"OWNER {[owner[i] for i in [1,2,4,5]]} found in database")
+
 
 print("Iterating through all tasks to upload...")
 for task_dir in listdir('upload'):

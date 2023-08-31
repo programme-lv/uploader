@@ -25,9 +25,9 @@ missing packages, please add them to the file.
 
 The script will do the following:
 1) connect to the database & assert db version;
-2) assert task specification version;
-3) validate provided `problem.toml` & file structure;
-4) fetch user by owner username;
+2) fetch owner by username;
+3) assert task specification version;
+4) validate provided `problem.toml` & file structure;
 5) create task if it doesn't exist in the database;
 6) create a new task version of the task;
 7) create tests for the task version;
