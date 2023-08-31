@@ -7,7 +7,7 @@ to upload tasks to the database.
 ## Usage
 
 1) Create a task following the examples in [example-tasks](https://github.com/programme-lv/example-tasks) repository.
-2) Place the task in the `upload` directory.
+2) Place the task in the `upload` directory as a directory or a `.zip`.
 3) Create `.env` file. See `.env.example` for reference.
 4) Run `python upload.py`.
 
