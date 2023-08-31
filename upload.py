@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from os import getenv, listdir
 from os.path import isdir, join
 from utils.db_interface import flyway_checksum_sum, get_user_by_username
+from utils.validate_task import validate_toml
 
 # select sum(checksum) from flyway_schema_history;
 OK_DB_SCHEMA_VERSION = -7075107967
@@ -35,7 +36,7 @@ with conn.cursor() as cur:
     owner = get_user_by_username(cur, OWNER)
 
 assert owner is not None, f"OWNER {owner} not found in database"
-print(f"OWNER {[owner[i] for i in [1,2,4,5]]} found in database")
+print(f"OWNER {[owner[i] for i in [1,2,4,5]]} OK")
 
 
 print("Iterating through all tasks to upload...")
@@ -53,13 +54,8 @@ for task_dir in listdir('upload'):
             f"Specification version mismatch: {problem_toml['specification']}"
         print("Specification version OK")
 
-        print(problem_toml)
-
-        code, name = problem_toml['code'], problem_toml['name']
-        time_ms = 1000*problem_toml['time']
-        memory_kb = 1024*problem_toml['memory']
-        type_id = problem_toml['type']
-        authors = problem_toml['authors']
+        validate_toml(problem_toml)
+        print("Validated problem.toml OK")
 
         conn.commit()
 
