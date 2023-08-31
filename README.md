@@ -24,12 +24,14 @@ missing packages, please add them to the file.
 ## Workflow
 
 The script will do the following:
-1) assert task specification version;
-2) validate provided `problem.toml` & file structure;
-3) create task if it doesn't exist in the database;
-4) create a new task version of the task;
-5) create tests for the task version;
+1) connect to the database & assert db version;
+2) assert task specification version;
+3) validate provided `problem.toml` & file structure;
+4) fetch user by owner username;
+5) create task if it doesn't exist in the database;
+6) create a new task version of the task;
+7) create tests for the task version;
 	- tests
 	- checker
 	- statement
-5) assign the new task version as the relevant one;
+8) assign the new task version as the relevant one;

@@ -146,3 +146,11 @@ def create_version_test(cursor, task_version_id,
     ''', (task_version_id, input_text_file_id, answer_text_file_id,
           test_filename))
     return cursor.fetchone()[0]
+
+
+def flyway_checksum_sum(cursor):
+    '''Returns the checksum sum of the flyway_schema_history table'''
+    cursor.execute('''
+        SELECT SUM(checksum) FROM flyway_schema_history
+    ''')
+    return cursor.fetchone()[0]
