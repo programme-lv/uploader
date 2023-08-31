@@ -1,3 +1,8 @@
+from os.path import isdir, isfile, join
+from os import listdir
+import re
+
+
 def is_lowercase_alphanum(s: str) -> bool:
     '''Returns True if s is a lowercase alphanumerical string,
     False otherwise'''
@@ -34,9 +39,43 @@ def validate_toml(problem_toml: dict):
 
 
 def validate_task_fs(task_dirpath, problem_toml):
-    # check for checker.cpp in evaluation dir
-    # check for examples files (ddd.in and ddd.ans) in examples dir
-    # check for solutions files (name.cpp) in solutions dir
+    # checker.cpp in evaluation dir
+    assert isdir(join(task_dirpath, 'evaluation')), \
+        "evaluation directory not found"
+    assert isfile(join(task_dirpath, 'evaluation', 'checker.cpp')), \
+        "checker.cpp not found in evaluation directory"
+
+    # digit filenames for examples in examples dir
+    if isdir(join(task_dirpath, 'examples')):
+        example_pattern = re.compile(r'^\d+\.(in|ans)$')
+
+        for filename in listdir(join(task_dirpath, 'examples')):
+            assert not isdir(join(task_dirpath, 'examples', filename)), \
+                f"Example {filename} is a fucking directory"
+            assert example_pattern.match(filename), \
+                f"Invalid example filename: {filename}"
+
     # check for at least one valid statement
-    # check for unnecessary folders or files
-    pass
+    # for now just check if there is a statement.md
+    # TODO: also check other languages, pdfs
+    assert isfile(join(task_dirpath, 'statements',
+                       'markdown', 'lv', 'statement.md')), \
+        "statement.md not found in statements/markdown/lv directory"
+
+    # ensure tests exist
+    assert isdir(join(task_dirpath, 'tests')), \
+        "tests directory not found"
+    assert len(listdir(join(task_dirpath, 'tests'))) > 0, \
+        "no tests in tests directory"
+    for test in listdir(join(task_dirpath, 'tests')):
+        assert not isdir(join(task_dirpath, 'tests', test)), \
+            f"Test {test} is a fucking directory"
+        test_pattern = re.compile(r'^\.(in|ans)$')
+        assert test_pattern.match(test), \
+            f"Invalid test filename: {test}"
+
+    # check for unnecessary directories or files
+    dir_files = set(listdir(task_dirpath))
+    for file in ['problem.toml', 'evaluation', 'examples', 'generation',
+                 'scripts', 'solutions', 'statements', 'temporary', 'tests']:
+        dir_files.discard(file)
