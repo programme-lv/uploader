@@ -1,6 +1,7 @@
+specification = "1.0"
+
 code = "summa"
 name = "Summa"
-version = 1
 
 authors = ["Krišjānis Petručeņa"]
 tags = ["math"]

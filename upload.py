@@ -8,7 +8,9 @@ from os.path import isdir, join
 from utils.db_interface import flyway_checksum_sum, get_user_by_username
 
 # select sum(checksum) from flyway_schema_history;
-OK_SCHEMA_VERSION = -7075107967
+OK_DB_SCHEMA_VERSION = -7075107967
+
+OK_TASK_SPEC_VERSION = "1.0"
 
 load_dotenv()
 
@@ -23,7 +25,7 @@ print(f"Connected to {getenv('DB_NAME')} at " +
 
 with conn.cursor() as cur:
     db_schema_version = flyway_checksum_sum(cur)
-assert db_schema_version == OK_SCHEMA_VERSION, \
+assert db_schema_version == OK_DB_SCHEMA_VERSION, \
     f"Database schema version mismatch: {db_schema_version}"
 
 print("Database schema version OK")
@@ -46,7 +48,12 @@ for task_dir in listdir('upload'):
     try:
         cur = conn.cursor()
 
-        problem_toml = toml.load(join(task_dir, 'problem.toml'))
+        problem_toml = toml.load(join(task_dirpath, 'problem.toml'))
+        assert problem_toml['specification'] == OK_TASK_SPEC_VERSION, \
+            f"Specification version mismatch: {problem_toml['specification']}"
+        print("Specification version OK")
+
+        print(problem_toml)
 
         code, name = problem_toml['code'], problem_toml['name']
         time_ms = 1000*problem_toml['time']
