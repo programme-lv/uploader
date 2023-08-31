@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from os import getenv, listdir
 from os.path import isdir, join
 from utils.db_interface import flyway_checksum_sum, get_user_by_username
-from utils.validate_task import validate_toml
+from utils.validate_task import validate_toml, validate_task_fs
 
 # select sum(checksum) from flyway_schema_history;
 OK_DB_SCHEMA_VERSION = -7075107967
@@ -56,6 +56,9 @@ for task_dir in listdir('upload'):
 
         validate_toml(problem_toml)
         print("Validated problem.toml OK")
+
+        validate_task_fs(task_dirpath, problem_toml)
+        print("Validated task filesystem OK")
 
         conn.commit()
 

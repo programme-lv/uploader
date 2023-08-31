@@ -1,9 +1,3 @@
-
-def valid_task_fs(task_dir, specification) -> (bool, str):
-    '''Returns  (True, None) if task_dir is a valid task,
-                (False, error) otherwise'''
-
-
 def is_lowercase_alphanum(s: str) -> bool:
     '''Returns True if s is a lowercase alphanumerical string,
     False otherwise'''
@@ -37,3 +31,12 @@ def validate_toml(problem_toml: dict):
 
     assert len(toml_fields) == 0, \
         f"Invalid fields: {toml_fields}"
+
+
+def validate_task_fs(task_dirpath, problem_toml):
+    # check for checker.cpp in evaluation dir
+    # check for examples files (ddd.in and ddd.ans) in examples dir
+    # check for solutions files (name.cpp) in solutions dir
+    # check for at least one valid statement
+    # check for unnecessary folders or files
+    pass
