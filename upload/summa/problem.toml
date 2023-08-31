@@ -1,13 +1,15 @@
 specification = "1.0"
 
 code = "summa"
-name = "Summa"
+name = "Saskaiti skaitļus!"
 
 authors = ["Krišjānis Petručeņa"]
 tags = ["math"]
 
 type = "simple"
 
-time = 1.0
-memory = 64
+time = 1.0 # seconds
+memory = 64 # MB
+
+difficulty = 1 # 1-5
 
