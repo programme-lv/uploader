@@ -46,7 +46,7 @@ def get_user_by_username(cursor, username):
 
 
 def create_task(cursor, created_by_id,
-                relevant_version_id=None, published_version_id=None):
+                relevant_version_id=None, published_version_id=None) -> int:
     '''Creates a new task and returns its ID'''
     cursor.execute('''
         INSERT INTO tasks
@@ -69,16 +69,17 @@ def update_task(cursor, task_id, created_by_id,
 
 def create_version(cursor, task_id, short_code, full_name,
                    time_lim_ms, mem_lim_kb, testing_type_id, origin=None,
-                   checker_text_id=None, interactor_text_id=None):
+                   checker_id=None, interactor_id=None):
     '''Creates a new task version and returns its ID'''
     cursor.execute('''
         INSERT INTO task_versions
         (task_id, short_code, full_name, time_lim_ms, mem_lim_kb,
-        testing_type_id, origin, checker_text_id, interactor_text_id)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        testing_type_id, origin, checker_id, interactor_id,
+        created_at)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
         RETURNING id
     ''', (task_id, short_code, full_name, time_lim_ms, mem_lim_kb,
-          testing_type_id, origin, checker_text_id, interactor_text_id))
+          testing_type_id, origin, checker_id, interactor_id))
     return cursor.fetchone()[0]
 
 

@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from os import getenv, listdir
 from os.path import isdir, join
 from utils.db_interface import flyway_checksum_sum, get_user_by_username, \
-    create_task
+    create_task, create_version, update_task
 from utils.validate_task import validate_toml, validate_task_fs
 
 # select sum(checksum) from flyway_schema_history;
@@ -61,10 +61,19 @@ for task_dir in listdir('upload'):
         validate_task_fs(task_dirpath, problem_toml)
         print("Validated task filesystem OK")
 
-        # check if task exists in the database
-        # if it doesn't, create it
+        task_id = create_task(cur, owner[0])
+        print(f"Created task {task_id}")
 
-        create_task(cur, owner[0])
+        version_id = create_version(
+            cur, task_id,
+            problem_toml["code"], problem_toml["name"],
+            problem_toml["time"]*1000, problem_toml["memory"]*1024,
+            problem_toml["type"]
+        )
+        print(f"Created version {version_id}")
+
+        update_task(cur, task_id, owner[0], version_id)
+        print(f"Assigned relevant version {version_id} to task {task_id}")
 
         conn.commit()
 
