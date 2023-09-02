@@ -209,3 +209,13 @@ def create_task_version_test(cursor, test_filename, task_version_id,
     ''', (test_filename, task_version_id,
           input_text_file_id, answer_text_file_id))
     return cursor.fetchone()[0]
+
+
+def create_statement_example(cursor, input, answer, task_version_id):
+    cursor.execute('''
+        INSERT INTO statement_examples
+        (input, answer, task_version_id)
+        VALUES (%s, %s, %s)
+        RETURNING id
+    ''', (input, answer, task_version_id))
+    return cursor.fetchone()[0]

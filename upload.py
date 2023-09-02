@@ -9,11 +9,11 @@ from os.path import isdir, join
 from utils.db_interface import flyway_checksum_sum, get_user_by_username, \
     create_task, create_version, update_task, ensure_checker, \
     assign_checker, ensure_textfile, create_task_version_test, \
-    create_md_statement
+    create_md_statement, create_statement_example
 from utils.validate_task import validate_toml, validate_task_fs
 
 # select sum(checksum) from flyway_schema_history;
-OK_DB_SCHEMA_VERSION = -9206734705
+OK_DB_SCHEMA_VERSION = -10413547619
 
 OK_TASK_SPEC_VERSION = "1.0"
 
@@ -138,6 +138,24 @@ for task_dir in listdir('upload'):
             create_md_statement(cur, story, input, output, notes,
                                 scoring, version_id, lang)
             print(f"Created markdown statement for version {version_id}")
+
+        # upload examples
+        examples_dir_path = join(task_dirpath, 'examples')
+        examples = set()
+        for example in listdir(examples_dir_path):
+            examples.add(splitext(example)[0])
+
+        for example in sorted(examples):
+            input_path = join(examples_dir_path, f"{example}.in")
+            answer_path = join(examples_dir_path, f"{example}.ans")
+            input_file = open(input_path, 'rb')
+            answer_file = open(answer_path, 'rb')
+            input = input_file.read().decode('utf-8')
+            answer = answer_file.read().decode('utf-8')
+            create_statement_example(cur, input, answer, version_id)
+            input_file.close()
+            answer_file.close()
+            print(f"Created example {example}")
 
         conn.commit()
 
