@@ -1,3 +1,6 @@
+from utils.cryptography import sha256_bytes
+
+
 def create_user(
         cursor, username, email, hashed_password,
         first_name, last_name, is_admin=False):
@@ -137,24 +140,70 @@ def create_textfile(cursor, sha256, content):
     return cursor.fetchone()[0]
 
 
-def create_version_test(cursor, task_version_id,
-                        input_text_file_id, answer_text_file_id,
-                        test_filename=""):
-    '''Link task version with test and returns its ID'''
-    cursor.execute('''
-        INSERT INTO task_version_tests
-        (task_version_id, input_text_file_id, answer_text_file_id,
-        test_filename)
-        VALUES (%s, %s, %s, %s)
-        RETURNING id
-    ''', (task_version_id, input_text_file_id, answer_text_file_id,
-          test_filename))
-    return cursor.fetchone()[0]
-
-
 def flyway_checksum_sum(cursor):
     '''Returns the checksum sum of the flyway_schema_history table'''
     cursor.execute('''
         SELECT SUM(checksum) FROM flyway_schema_history
     ''')
+    return cursor.fetchone()[0]
+
+
+def create_checker(cursor, code):
+    """Create a new checker and returns its ID"""
+    cursor.execute('''
+        INSERT INTO testlib_checkers
+        (code)
+        VALUES (%s)
+        RETURNING id
+    ''', (code,))
+    return cursor.fetchone()[0]
+
+
+def ensure_checker(cursor, code):
+    """Create a new checker if it doesn't exist and returns its ID"""
+    cursor.execute('''
+        SELECT id FROM testlib_checkers
+        WHERE code = %s
+    ''', (code,))
+    res = cursor.fetchone()
+    if res is None:
+        return create_checker(cursor, code)
+    else:
+        return res[0]
+
+
+def assign_checker(cursor, task_version_id, checker_id):
+    """Assign a checker to a task version"""
+    cursor.execute('''
+        UPDATE task_versions
+        SET checker_id = %s
+        WHERE id = %s
+    ''', (checker_id, task_version_id))
+
+
+def ensure_textfile(cursor, content):
+    """Create a new textfile if it doesn't exist and returns its ID"""
+    sha256 = sha256_bytes(content)
+    decoded = content.decode('utf-8')
+    cursor.execute('''
+        SELECT id FROM text_files
+        WHERE sha256 = %s
+    ''', (sha256,))
+    res = cursor.fetchone()
+    if res is None:
+        return create_textfile(cursor, sha256, decoded)
+    else:
+        return res[0]
+
+
+def create_task_version_test(cursor, test_filename, task_version_id,
+                             input_text_file_id, answer_text_file_id):
+    cursor.execute('''
+        INSERT INTO task_version_tests
+        (test_filename, task_version_id,
+        input_text_file_id, answer_text_file_id)
+        VALUES (%s, %s, %s, %s)
+        RETURNING id
+    ''', (test_filename, task_version_id,
+          input_text_file_id, answer_text_file_id))
     return cursor.fetchone()[0]

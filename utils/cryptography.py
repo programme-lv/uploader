@@ -8,6 +8,16 @@ def bcrypt_password(password):
     return hashed.decode('utf-8')
 
 
+def sha256_string(str):
+    sha256_hash = hashlib.sha256(str.encode('utf-8'))
+    return sha256_hash.hexdigest()
+
+
+def sha256_bytes(bytes):
+    sha256_hash = hashlib.sha256(bytes)
+    return sha256_hash.hexdigest()
+
+
 def sha256_file(filename):
     sha256_hash = hashlib.sha256()
     with open(filename, "rb") as f:

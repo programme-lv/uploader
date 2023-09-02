@@ -4,9 +4,11 @@ import psycopg2
 import toml
 from dotenv import load_dotenv
 from os import getenv, listdir
+from os.path import splitext
 from os.path import isdir, join
 from utils.db_interface import flyway_checksum_sum, get_user_by_username, \
-    create_task, create_version, update_task
+    create_task, create_version, update_task, ensure_checker, \
+    assign_checker, ensure_textfile, create_task_version_test
 from utils.validate_task import validate_toml, validate_task_fs
 
 # select sum(checksum) from flyway_schema_history;
@@ -74,6 +76,44 @@ for task_dir in listdir('upload'):
 
         update_task(cur, task_id, owner[0], version_id)
         print(f"Assigned relevant version {version_id} to task {task_id}")
+
+        checker_path = join(task_dirpath, 'evaluation', 'checker.cpp')
+        with open(checker_path, 'r') as checker_file:
+            checker_code = checker_file.read()
+        checker_id = ensure_checker(cur, checker_code)
+        print(f"Ensured checker {checker_id} exists")
+
+        assign_checker(cur, version_id, checker_id)
+        print(f"Assigned checker {checker_id} to version {version_id}")
+
+        # upload testcases
+        tests = set()
+        tests_path = join(task_dirpath, 'tests')
+        for test in listdir(tests_path):
+            tests.add(splitext(test)[0])
+
+        for test in tests:
+            print(f"Uploading test \"{test}\"...")
+            input_path = join(tests_path, f"{test}.in")
+            answer_path = join(tests_path, f"{test}.ans")
+            input_file = open(input_path, 'rb')
+            answer_file = open(answer_path, 'rb')
+
+            input = input_file.read()
+            input_text_file_id = ensure_textfile(cur, input)
+            print(f"Ensured input textfile {input_text_file_id} exists")
+
+            answer = answer_file.read()
+            answer_text_file_id = ensure_textfile(cur, answer)
+            print(f"Ensured answer textfile {answer_text_file_id} exists")
+
+            create_task_version_test(
+                cur, test, version_id,
+                input_text_file_id, answer_text_file_id)
+            print(f"Created test {test} for version {version_id}")
+
+            input_file.close()
+            answer_file.close()
 
         conn.commit()
 
