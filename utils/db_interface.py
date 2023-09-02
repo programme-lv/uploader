@@ -88,14 +88,16 @@ def create_version(cursor, task_id, short_code, full_name,
 
 def create_md_statement(cursor,
                         story, input, output, notes, scoring,
-                        task_version_id):
+                        task_version_id, lang_iso639_1):
     '''Create a new markdown_statement and returns its ID'''
     cursor.execute('''
         INSERT INTO markdown_statements
-        (story, input, output, notes, scoring, task_version_id)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        (story, input, output, notes, scoring, task_version_id,
+        lang_iso639_1)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         RETURNING id
-    ''', (story, input, output, notes, scoring, task_version_id))
+    ''', (story, input, output, notes, scoring, task_version_id,
+          lang_iso639_1))
     return cursor.fetchone()[0]
 
 

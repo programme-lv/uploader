@@ -8,11 +8,12 @@ from os.path import splitext
 from os.path import isdir, join
 from utils.db_interface import flyway_checksum_sum, get_user_by_username, \
     create_task, create_version, update_task, ensure_checker, \
-    assign_checker, ensure_textfile, create_task_version_test
+    assign_checker, ensure_textfile, create_task_version_test, \
+    create_md_statement
 from utils.validate_task import validate_toml, validate_task_fs
 
 # select sum(checksum) from flyway_schema_history;
-OK_DB_SCHEMA_VERSION = -7075107967
+OK_DB_SCHEMA_VERSION = -9206734705
 
 OK_TASK_SPEC_VERSION = "1.0"
 
@@ -86,7 +87,6 @@ for task_dir in listdir('upload'):
         assign_checker(cur, version_id, checker_id)
         print(f"Assigned checker {checker_id} to version {version_id}")
 
-        # upload testcases
         tests = set()
         tests_path = join(task_dirpath, 'tests')
         for test in listdir(tests_path):
@@ -114,6 +114,30 @@ for task_dir in listdir('upload'):
 
             input_file.close()
             answer_file.close()
+
+        # upload markdown statement
+        markdown_dir_path = join(task_dirpath, 'statements', 'markdown')
+        for lang in listdir(markdown_dir_path):
+            if not isdir(join(markdown_dir_path, lang)):
+                continue
+            md_files = dict()  # input, output, story, notes, scoring
+            for file in listdir(join(markdown_dir_path, lang)):
+                with open(join(markdown_dir_path, lang, file), 'rb') as f:
+                    md_files[splitext(
+                        file)[0]] = f.read().decode('utf-8')
+            input = md_files['input'] if 'input' in md_files \
+                else None
+            output = md_files['output'] if 'output' in md_files \
+                else None
+            story = md_files['story'] if 'story' in md_files \
+                else None
+            notes = md_files['notes'] if 'notes' in md_files \
+                else None
+            scoring = md_files['scoring'] if 'scoring' in md_files \
+                else None
+            create_md_statement(cur, story, input, output, notes,
+                                scoring, version_id, lang)
+            print(f"Created markdown statement for version {version_id}")
 
         conn.commit()
 
