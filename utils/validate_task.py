@@ -48,6 +48,9 @@ def validate_toml(problem_toml: dict):
 
 
 def validate_task_fs(task_dirpath, problem_toml):
+    assert problem_toml['type'] == 'simple', \
+        f"Invalid type: {problem_toml['type']}"
+
     # checker.cpp in evaluation dir
     assert isdir(join(task_dirpath, 'evaluation')), \
         "evaluation directory not found"
