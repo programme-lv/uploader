@@ -16,6 +16,16 @@ username provided in the `.env` file. The user must exist in the database.
 
 ## Prerequisites
 
+It is recommended to use a virtual environment for the script.
+
+```
+python -m venv venv
+```
+
+```
+source venv/bin/activate
+```
+
 1) Install the required python packages with `pip install -r requirements.txt`.
 
 The `requirements.txt` isn't maintained thoroughly. If you encounter any
