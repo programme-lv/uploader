@@ -31,6 +31,8 @@ source venv/bin/activate
 The `requirements.txt` isn't maintained thoroughly. If you encounter any
 missing packages, please add them to the file.
 
+If required, pg_config executable is in postgresql-devel (libpq-dev in Debian/Ubuntu, libpq-devel on Centos/Fedora/Cygwin/Babun.)
+
 ## Workflow
 
 The script will do the following:
