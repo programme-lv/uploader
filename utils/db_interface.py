@@ -76,7 +76,7 @@ def create_version(cursor, task_id, short_code, full_name,
     '''Creates a new task version and returns its ID'''
     cursor.execute('''
         INSERT INTO task_versions
-        (task_id, short_code, full_name, time_lim_ms, mem_lim_kb,
+        (task_id, short_code, full_name, time_lim_ms, mem_lim_kibibytes,
         testing_type_id, origin, checker_id, interactor_id,
         created_at)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
