@@ -4,7 +4,7 @@ from cryptography import sha256_file
 
 
 def ensure_textfile(cursor, filename):
-    '''Ensure db has text_file entry and return its id'''
+    """Ensure db has text_file entry and return its id"""
     file_hash = sha256_file(filename)
 
     if textfile_exists(cursor, file_hash):

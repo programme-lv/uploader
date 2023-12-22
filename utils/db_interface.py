@@ -4,7 +4,7 @@ from utils.cryptography import sha256_bytes
 def create_user(
         cursor, username, email, hashed_password,
         first_name, last_name, is_admin=False):
-    '''Creates a new user and returns their ID'''
+    """Creates a new user and returns their ID"""
     cursor.execute('''
         INSERT INTO users
         (username, email, hashed_password, first_name, last_name,is_admin)
@@ -16,7 +16,7 @@ def create_user(
 
 
 def user_exists(cursor, username):
-    '''Returns True if a user with the given username exists'''
+    """Returns True if a user with the given username exists"""
     cursor.execute('''
         SELECT EXISTS(
             SELECT 1
@@ -28,7 +28,7 @@ def user_exists(cursor, username):
 
 
 def get_user_id(cursor, username):
-    '''Returns the ID of a user with the given username'''
+    """Returns the ID of a user with the given username"""
     cursor.execute('''
         SELECT id FROM users
         WHERE username = %s
@@ -50,7 +50,7 @@ def get_user_by_username(cursor, username):
 
 def create_task(cursor, created_by_id,
                 relevant_version_id=None, published_version_id=None) -> int:
-    '''Creates a new task and returns its ID'''
+    """Creates a new task and returns its ID"""
     cursor.execute('''
         INSERT INTO tasks
         (created_by_id, relevant_version_id, published_version_id)
@@ -73,7 +73,7 @@ def update_task(cursor, task_id, created_by_id,
 def create_version(cursor, task_id, short_code, full_name,
                    time_lim_ms, mem_lim_kb, testing_type_id, origin=None,
                    checker_id=None, interactor_id=None):
-    '''Creates a new task version and returns its ID'''
+    """Creates a new task version and returns its ID"""
     cursor.execute('''
         INSERT INTO task_versions
         (task_id, short_code, full_name, time_lim_ms, mem_lim_kibibytes,
@@ -87,22 +87,22 @@ def create_version(cursor, task_id, short_code, full_name,
 
 
 def create_md_statement(cursor,
-                        story, input, output, notes, scoring,
+                        story, md_input, output, notes, scoring,
                         task_version_id, lang_iso639_1):
-    '''Create a new markdown_statement and returns its ID'''
+    """Create a new markdown_statement and returns its ID"""
     cursor.execute('''
         INSERT INTO markdown_statements
         (story, input, output, notes, scoring, task_version_id,
         lang_iso639_1)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
         RETURNING id
-    ''', (story, input, output, notes, scoring, task_version_id,
+    ''', (story, md_input, output, notes, scoring, task_version_id,
           lang_iso639_1))
     return cursor.fetchone()[0]
 
 
 def create_version_author(cursor, task_version_id, author):
-    '''Create a new task version author entry'''
+    """Create a new task version author entry"""
     cursor.execute('''
         INSERT INTO version_authors
         (task_version_id, author)
@@ -111,7 +111,7 @@ def create_version_author(cursor, task_version_id, author):
 
 
 def textfile_exists(cursor, sha256):
-    '''Returns True if a text file with the given sha256 exists'''
+    """Returns True if a text file with the given sha256 exists"""
     cursor.execute('''
         SELECT EXISTS(
             SELECT 1
@@ -123,7 +123,7 @@ def textfile_exists(cursor, sha256):
 
 
 def get_textfile_id(cursor, sha256):
-    '''Returns the ID of a text file with the given sha256'''
+    """Returns the ID of a text file with the given sha256"""
     cursor.execute('''
         SELECT id FROM text_files
         WHERE sha256 = %s
@@ -132,7 +132,7 @@ def get_textfile_id(cursor, sha256):
 
 
 def create_textfile(cursor, sha256, content):
-    '''Creates a new text file and returns its ID'''
+    """Creates a new text file and returns its ID"""
     cursor.execute('''
         INSERT INTO text_files
         (sha256, content)
@@ -143,7 +143,7 @@ def create_textfile(cursor, sha256, content):
 
 
 def flyway_checksum_sum(cursor):
-    '''Returns the checksum sum of the flyway_schema_history table'''
+    """Returns the checksum sum of the flyway_schema_history table"""
     cursor.execute('''
         SELECT SUM(checksum) FROM flyway_schema_history
     ''')
@@ -211,11 +211,11 @@ def create_task_version_test(cursor, test_filename, task_version_id,
     return cursor.fetchone()[0]
 
 
-def create_statement_example(cursor, input, answer, task_version_id):
+def create_statement_example(cursor, md_input, answer, task_version_id):
     cursor.execute('''
         INSERT INTO statement_examples
         (input, answer, task_version_id)
         VALUES (%s, %s, %s)
         RETURNING id
-    ''', (input, answer, task_version_id))
+    ''', (md_input, answer, task_version_id))
     return cursor.fetchone()[0]

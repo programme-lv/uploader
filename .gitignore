@@ -1,4 +1,7 @@
 .env
+.env.production
 __pycache__
 uploader_venv
 venv
+.idea
+upload

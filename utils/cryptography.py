@@ -8,13 +8,13 @@ def bcrypt_password(password):
     return hashed.decode('utf-8')
 
 
-def sha256_string(str):
-    sha256_hash = hashlib.sha256(str.encode('utf-8'))
+def sha256_string(data):
+    sha256_hash = hashlib.sha256(data.encode('utf-8'))
     return sha256_hash.hexdigest()
 
 
-def sha256_bytes(bytes):
-    sha256_hash = hashlib.sha256(bytes)
+def sha256_bytes(data):
+    sha256_hash = hashlib.sha256(data)
     return sha256_hash.hexdigest()
 
 

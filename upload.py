@@ -99,8 +99,8 @@ for task_dir in listdir('upload'):
             input_file = open(input_path, 'rb')
             answer_file = open(answer_path, 'rb')
 
-            input = input_file.read()
-            input_text_file_id = ensure_textfile(cur, input)
+            md_input = input_file.read()
+            input_text_file_id = ensure_textfile(cur, md_input)
             print(f"Ensured input textfile {input_text_file_id} exists")
 
             answer = answer_file.read()
@@ -125,7 +125,7 @@ for task_dir in listdir('upload'):
                 with open(join(markdown_dir_path, lang, file), 'rb') as f:
                     md_files[splitext(
                         file)[0]] = f.read().decode('utf-8')
-            input = md_files['input'] if 'input' in md_files \
+            md_input = md_files['input'] if 'input' in md_files \
                 else None
             output = md_files['output'] if 'output' in md_files \
                 else None
@@ -135,7 +135,7 @@ for task_dir in listdir('upload'):
                 else None
             scoring = md_files['scoring'] if 'scoring' in md_files \
                 else None
-            create_md_statement(cur, story, input, output, notes,
+            create_md_statement(cur, story, md_input, output, notes,
                                 scoring, version_id, lang)
             print(f"Created markdown statement for version {version_id}")
 
@@ -150,9 +150,9 @@ for task_dir in listdir('upload'):
             answer_path = join(examples_dir_path, f"{example}.ans")
             input_file = open(input_path, 'rb')
             answer_file = open(answer_path, 'rb')
-            input = input_file.read().decode('utf-8')
+            md_input = input_file.read().decode('utf-8')
             answer = answer_file.read().decode('utf-8')
-            create_statement_example(cur, input, answer, version_id)
+            create_statement_example(cur, md_input, answer, version_id)
             input_file.close()
             answer_file.close()
             print(f"Created example {example}")

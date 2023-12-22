@@ -4,8 +4,8 @@ import re
 
 
 def is_lowercase_alphanum(s: str) -> bool:
-    '''Returns True if s is a lowercase alphanumerical string,
-    False otherwise'''
+    """Returns True if s is a lowercase alphanumerical string,
+    False otherwise"""
     return all(c.islower() or c.isdigit() for c in s)
 
 
@@ -15,8 +15,8 @@ def is_numerical_integer(value):
 
 
 def validate_toml(problem_toml: dict):
-    '''Returns True if toml is a valid problem.toml,
-    False otherwise'''
+    """Returns True if toml is a valid problem.toml,
+    False otherwise"""
     assert is_lowercase_alphanum(problem_toml['code']), \
         f"Invalid code: {problem_toml['code']}"
     assert len(problem_toml['code']) <= 32, \
