@@ -1,0 +1,126 @@
+table_name,column_name,data_type
+flyway_schema_history,version,character varying
+users,is_admin,boolean
+task_versions,interactor_id,bigint
+text_files,id,bigint
+tasks,relevant_version_id,bigint
+markdown_statements,notes,text
+flyway_schema_history,success,boolean
+users,created_at,timestamp with time zone
+problem_tags,created_at,timestamp with time zone
+task_versions,updated_at,timestamp with time zone
+task_version_tests,test_filename,text
+users,email,text
+task_submissions,visible_eval_id,bigint
+evaluations,compilation_data_id,bigint
+runtime_statistics,total_memory_kibibytes,bigint
+runtime_data,time_wall_millis,bigint
+text_files,created_at,timestamp with time zone
+task_versions,created_at,timestamp with time zone
+programming_languages,monaco_id,text
+programming_languages,env_version_cmd,text
+users,id,bigint
+evaluations,task_version_id,bigint
+version_authors,author,text
+task_submissions,created_at,timestamp with time zone
+task_origins,abbreviation,text
+text_files,content,text
+testing_types,id,text
+users,hashed_password,text
+evaluation_test_results,evaluation_id,bigint
+evaluations,eval_total_score,bigint
+runtime_data,stderr,text
+task_submissions,id,bigint
+programming_languages,id,text
+testlib_interactors,code,text
+testlib_checkers,id,bigint
+users,last_name,text
+statement_examples,answer,text
+programming_languages,compile_cmd,text
+submission_evaluations,evaluation_id,bigint
+runtime_data,exit_code,bigint
+evaluations,created_at,timestamp with time zone
+evaluation_test_results,exec_r_data_id,bigint
+task_submissions,programming_lang_id,text
+flyway_schema_history,script,character varying
+programming_languages,hello_world_code,text
+statement_examples,id,bigint
+tasks,created_at,timestamp with time zone
+task_submissions,hidden,boolean
+programming_languages,compiled_filename,text
+runtime_data,time_millis,bigint
+submission_evaluations,id,bigint
+markdown_statements,story,text
+problem_tags,description_lv,text
+evaluations,eval_possible_score,bigint
+users,updated_at,timestamp with time zone
+task_version_tests,answer_text_file_id,bigint
+task_submissions,task_id,bigint
+task_versions,full_name,text
+evaluations,id,bigint
+runtime_data,id,bigint
+runtime_statistics,maximum_time_millis,bigint
+evaluation_statuses,description_en,text
+programming_languages,code_filename,text
+statement_examples,task_version_id,bigint
+submission_evaluations,submission_id,bigint
+flyway_schema_history,checksum,integer
+markdown_statements,id,bigint
+tasks,id,bigint
+statement_examples,input,text
+evaluation_statuses,dev_notes,text
+runtime_statistics,total_time_millis,bigint
+task_versions,time_lim_ms,bigint
+runtime_statistics,id,bigint
+evaluation_statuses,id,text
+evaluations,eval_status_id,text
+markdown_statements,output,text
+runtime_data,stdout,text
+evaluation_statuses,description_lv,text
+runtime_statistics,maximum_memory_kibibytes,bigint
+programming_languages,full_name,text
+testlib_interactors,id,bigint
+testlib_checkers,code,text
+task_submissions,user_id,bigint
+users,first_name,text
+markdown_statements,task_version_id,bigint
+programming_languages,enabled,boolean
+task_versions,testing_type_id,text
+tasks,created_by_id,bigint
+markdown_statements,input,text
+runtime_statistics,avg_memory_kibibytes,double precision
+flyway_schema_history,installed_on,timestamp without time zone
+evaluation_test_results,checker_r_data_id,bigint
+flyway_schema_history,installed_by,character varying
+programming_languages,execute_cmd,text
+task_version_tests,task_version_id,bigint
+version_authors,task_version_id,integer
+task_versions,task_id,bigint
+task_submissions,submission,text
+evaluation_test_results,task_v_test_id,bigint
+flyway_schema_history,execution_time,integer
+users,username,text
+markdown_statements,lang_iso639_1,text
+evaluation_test_results,id,bigint
+task_versions,mem_lim_kibibytes,bigint
+testing_types,description_en,text
+problem_tags,updated_at,timestamp with time zone
+flyway_schema_history,description,character varying
+task_versions,origin,text
+task_origins,full_name,text
+problem_tags,id,text
+task_versions,short_code,text
+evaluation_test_results,eval_status_id,text
+task_version_tests,input_text_file_id,bigint
+tasks,published_version_id,integer
+text_files,sha256,text
+flyway_schema_history,installed_rank,integer
+markdown_statements,scoring,text
+task_versions,checker_id,bigint
+flyway_schema_history,type,character varying
+runtime_statistics,avg_time_millis,double precision
+runtime_data,memory_kibibytes,bigint
+evaluations,test_runtime_statistics_id,bigint
+problem_tags,color_rgb_hex,text
+task_version_tests,id,bigint
+task_versions,id,bigint

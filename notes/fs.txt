@@ -1,0 +1,35 @@
+.
+├── evaluation
+│   └── checker.cpp
+├── examples
+│   ├── 001.ans
+│   ├── 001.in
+│   ├── 002.ans
+│   └── 002.in
+├── generation
+│   ├── generate.jl
+│   ├── generate.sh
+│   └── generator.cpp
+├── hello.txt
+├── problem.toml
+├── solutions
+│   └── kp_correct.cpp
+├── statements
+│   └── md
+│       └── lv
+│           ├── input.md
+│           ├── output.md
+│           └── story.md
+└── tests
+    ├── 001.ans
+    ├── 001.in
+    ├── 002.ans
+    ├── 002.in
+    ├── 003.ans
+    ├── 003.in
+    ├── 004.ans
+    ├── 004.in
+    ├── 005.ans
+    └── 005.in
+
+9 directories, 24 files
