@@ -2,13 +2,12 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 
-	"github.com/BurntSushi/toml"
+	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"github.com/programme-lv/uploader/internal/upload"
 )
 
@@ -21,43 +20,16 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
-
+	sqlxConnString := os.Getenv("SQLX_CONN_STRING")
 	accessKey := os.Getenv("SPACES_KEY")
 	secretKey := os.Getenv("SPACES_SECRET")
-	region := "fra1"
-	endpoint := fmt.Sprintf("https://%s.%s", region, "digitaloceanspaces.com")
 	bucket := os.Getenv("S3_BUCKET")
 
+	sqlxDB := sqlx.MustConnect("postgres", sqlxConnString)
+	defer sqlxDB.Close()
+
 	s3Uploader := upload.NewS3Uploader(accessKey, secretKey,
-		region, endpoint, bucket)
+		"fra1", "https://fra1.digitaloceanspaces.com", bucket)
 
-	problem, err := readProblemToml(rootFolder)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println(problem)
-
-	err = upload.ProcessTestsDir(rootFolder, s3Uploader)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-type Problem struct {
-	Specification string   `toml:"specification"`
-	Code          string   `toml:"code"`
-	Name          string   `toml:"name"`
-	Authors       []string `toml:"authors"`
-	Tags          []string `toml:"tags"`
-	Type          string   `toml:"type"`
-	Time          float64  `toml:"time"`
-	Memory        int      `toml:"memory"`
-	Difficulty    int      `toml:"difficulty"`
-}
-
-func readProblemToml(rootFolder string) (Problem, error) {
-	problemTomlPath := filepath.Join(rootFolder, "problem.toml")
-	var problem Problem
-	_, err := toml.DecodeFile(problemTomlPath, &problem)
-	return problem, err
+	upload.UploadTask(rootFolder, s3Uploader, sqlxDB)
 }
