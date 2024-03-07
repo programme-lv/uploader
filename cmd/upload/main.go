@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -24,7 +25,7 @@ func main() {
 	accessKey := os.Getenv("SPACES_KEY")
 	secretKey := os.Getenv("SPACES_SECRET")
 	region := "fra1"
-	endpoint := "https://fra1.digitaloceanspaces.com"
+	endpoint := fmt.Sprintf("https://%s.%s", region, "digitaloceanspaces.com")
 	bucket := os.Getenv("S3_BUCKET")
 
 	s3Uploader := upload.NewS3Uploader(accessKey, secretKey,
