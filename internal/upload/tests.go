@@ -45,6 +45,7 @@ func processTestsDir(testDir string, uploader S3Uploader, db qrm.DB, versionID i
 }
 
 func linkTaskVersionToTest(db qrm.Executable, name string, versionID, inTextFileID, ansTextFileID int) error {
+	log.Printf("Linking test %v to task version %v", name, versionID)
 	insertStmt := table.TaskVersionTests.INSERT(
 		table.TaskVersionTests.TestFilename,
 		table.TaskVersionTests.TaskVersionID,
@@ -103,6 +104,9 @@ func getTestNamesNoExt(testDir string) (set.Set[string], error) {
 
 func ensureTextFileExistsS3(uploader S3Uploader, sha256Hex string, content io.ReadSeeker) error {
 	testS3Key := fmt.Sprintf("tests/%s", sha256Hex)
+
+	log.Printf("Ensuring %v exists in S3", testS3Key)
+
 	exists, err := uploader.Exists(testS3Key)
 	if err != nil {
 		return err
@@ -112,15 +116,17 @@ func ensureTextFileExistsS3(uploader S3Uploader, sha256Hex string, content io.Re
 		if err != nil {
 			return err
 		}
-		log.Println("file uploaded")
+		log.Printf("Uploaded %v to S3", testS3Key)
 	} else {
-		log.Println("file already exists")
+		log.Printf("%v already exists in S3", testS3Key)
 	}
 
 	return nil
 }
 
 func ensureTextFileRowExistsDB(db qrm.Queryable, sha256Hex string) (int, error) {
+	log.Printf("Ensuring %v text file exists in DB", sha256Hex)
+
 	insertStmt := table.TextFiles.INSERT(
 		table.TextFiles.Sha256,
 	).VALUES(sha256Hex).

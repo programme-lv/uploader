@@ -1,6 +1,7 @@
 package upload
 
 import (
+	"log"
 	"os"
 	"path"
 
@@ -45,6 +46,8 @@ func processMdDir(versionID int, mdDir string, db qrm.Executable) error {
 
 func processMdLangDir(versionID int,
 	mdLangDir string, lang string, db qrm.Executable) error {
+	log.Printf("Processing lang dir: %v", mdLangDir)
+
 	entries, err := os.ReadDir(mdLangDir)
 	if err != nil {
 		return err

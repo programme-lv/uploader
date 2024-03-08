@@ -1,6 +1,7 @@
 package upload
 
 import (
+	"log"
 	"os"
 	"path"
 	"strings"
@@ -50,6 +51,7 @@ func processExamplesDir(versionID int, examplesDir string, db qrm.Executable) er
 }
 
 func createExample(versionID int, in, ans string, db qrm.Executable) error {
+	log.Printf("Creating example for task version %v", versionID)
 	insertStmt := table.StatementExamples.INSERT(
 		table.StatementExamples.TaskVersionID,
 		table.StatementExamples.Input,

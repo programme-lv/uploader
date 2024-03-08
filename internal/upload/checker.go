@@ -33,6 +33,7 @@ func readCheckerFile(taskDir string) string {
 }
 
 func ensureCheckerExists(db qrm.Queryable, code string) (int, error) {
+	log.Printf("Ensuring checker exists")
 	insertStmt := table.TestlibCheckers.INSERT(
 		table.TestlibCheckers.Code,
 	).VALUES(code).
