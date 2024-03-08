@@ -5,6 +5,7 @@ import (
 	"math"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/go-jet/jet/v2/qrm"
@@ -23,14 +24,14 @@ func UploadTask(taskDir string, uploader S3Uploader, sqlxDB *sqlx.DB) error {
 
 	taskID, err := createTask(sqlxDB)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error creating task: %v", err)
 	}
 
 	log.Println("TaskID:", taskID)
 
 	versionID, err := createTaskVersion(sqlxDB, taskID, problem)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error creating task version: %v", err)
 	}
 
 	log.Println("VersionID:", versionID)
@@ -52,8 +53,14 @@ func UploadTask(taskDir string, uploader S3Uploader, sqlxDB *sqlx.DB) error {
 	// create a new task version
 	// fill task_version_tests, text_files
 	// link relevant_version to task
+	statementsDir := path.Join(taskDir, "statements")
+	err = processStatementDir(versionID, statementsDir, sqlxDB)
+	if err != nil {
+		log.Fatalf("Error processing statement dir: %v", err)
+	}
 
-	err = ProcessTestsDir(taskDir, uploader, sqlxDB)
+	testDir := filepath.Join(taskDir, "tests")
+	err = processTestsDir(testDir, uploader, sqlxDB)
 	if err != nil {
 		log.Fatal(err)
 	}

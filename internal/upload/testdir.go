@@ -10,8 +10,7 @@ import (
 	"path/filepath"
 )
 
-func ProcessTestsDir(rootFolder string, uploader S3Uploader, sqlx any) error {
-	testDir := filepath.Join(rootFolder, "tests")
+func processTestsDir(testDir string, uploader S3Uploader, sqlx any) error {
 	err := filepath.Walk(testDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
