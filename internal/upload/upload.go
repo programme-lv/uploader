@@ -49,10 +49,6 @@ func UploadTask(taskDir string, uploader S3Uploader, sqlxDB *sqlx.DB) error {
 	}
 	log.Println("Checker assigned to task version")
 
-	// create a new task
-	// create a new task version
-	// fill task_version_tests, text_files
-	// link relevant_version to task
 	statementsDir := path.Join(taskDir, "statements")
 	err = processStatementDir(versionID, statementsDir, sqlxDB)
 	if err != nil {
@@ -62,8 +58,15 @@ func UploadTask(taskDir string, uploader S3Uploader, sqlxDB *sqlx.DB) error {
 	testDir := filepath.Join(taskDir, "tests")
 	err = processTestsDir(testDir, uploader, sqlxDB)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error processing tests dir: %v", err)
 	}
+
+	examplesDir := path.Join(taskDir, "examples")
+	err = processExamplesDir(versionID, examplesDir, sqlxDB)
+	if err != nil {
+		log.Fatalf("Error processing examples dir: %v", err)
+	}
+
 	return nil
 }
 
