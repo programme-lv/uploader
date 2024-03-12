@@ -5,7 +5,7 @@
 # use absolute location ../upload
 
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
-UPLOAD_DIR=$SCRIPT_DIR/../upload
+UPLOAD_DIR=$SCRIPT_DIR/../tasks
 REPO_URL="https://github.com/programme-lv/example-tasks"
 
 # make sure upload dir exists

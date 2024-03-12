@@ -35,6 +35,11 @@ func UploadTask(taskDir string, uploader S3Uploader, sqlxDB *sqlx.DB) error {
 
 	log.Println("VersionID:", versionID)
 
+	err = updateTaskRelevantVersionID(sqlxDB, taskID, versionID)
+	if err != nil {
+		log.Fatalf("Error updating task relevant version ID: %v", err)
+	}
+
 	checkerCpp := readCheckerFile(taskDir)
 	checkerID, err := ensureCheckerExists(sqlxDB, checkerCpp)
 	if err != nil {
@@ -67,6 +72,17 @@ func UploadTask(taskDir string, uploader S3Uploader, sqlxDB *sqlx.DB) error {
 	}
 
 	return nil
+}
+
+func updateTaskRelevantVersionID(db qrm.Executable, taskID, versionID int) error {
+	updateStmt := table.Tasks.UPDATE(
+		table.Tasks.RelevantVersionID,
+	).SET(
+		versionID,
+	).WHERE(table.Tasks.ID.EQ(postgres.Int64(int64(taskID))))
+
+	_, err := updateStmt.Exec(db)
+	return err
 }
 
 func createTaskVersion(db qrm.Queryable, taskID int, problem Problem) (int, error) {
