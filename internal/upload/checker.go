@@ -11,13 +11,13 @@ import (
 	"github.com/programme-lv/uploader/internal/database/proglv/public/table"
 )
 
-func assignCheckerToTaskVersion(db qrm.Executable, checkerID, versionID int) error {
+func assignCheckerToTaskVersion(db qrm.Executable, checkerID, versionID int64) error {
 	updateStmt := table.TaskVersions.UPDATE(
 		table.TaskVersions.CheckerID,
 	).SET(
 		checkerID,
 	).WHERE(
-		table.TaskVersions.ID.EQ(postgres.Int(int64(versionID))),
+		table.TaskVersions.ID.EQ(postgres.Int(versionID)),
 	)
 
 	_, err := updateStmt.Exec(db)
@@ -32,7 +32,7 @@ func readCheckerFile(taskDir string) string {
 	return string(checkerCpp)
 }
 
-func ensureCheckerExists(db qrm.Queryable, code string) (int, error) {
+func ensureCheckerExists(db qrm.Queryable, code string) (int64, error) {
 	log.Printf("Ensuring checker exists")
 	insertStmt := table.TestlibCheckers.INSERT(
 		table.TestlibCheckers.Code,
@@ -47,5 +47,5 @@ func ensureCheckerExists(db qrm.Queryable, code string) (int, error) {
 		return 0, err
 	}
 
-	return int(dest.ID), nil
+	return dest.ID, nil
 }

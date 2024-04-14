@@ -7,15 +7,32 @@ import (
 	"strings"
 
 	set "github.com/deckarep/golang-set/v2"
+	"github.com/go-jet/jet/v2/postgres"
 	"github.com/go-jet/jet/v2/qrm"
+	"github.com/programme-lv/uploader/internal/database/proglv/public/model"
 	"github.com/programme-lv/uploader/internal/database/proglv/public/table"
 )
 
-func processExamplesDir(versionID int, examplesDir string, db qrm.Executable) error {
+// ProcessExamplesDir processes the examples directory and creates examples set
+// returns example_set_id
+func processExamplesDir(examplesDir string, db qrm.DB) (int64, error) {
 	entries, err := os.ReadDir(examplesDir)
 	if err != nil {
-		return err
+		return 0, err
 	}
+
+	// create new example set
+	createExampleSetStmt := table.ExampleSets.INSERT(
+		table.ExampleSets.CreatedAt,
+	).VALUES(postgres.NOW()).RETURNING(table.ExampleSets.ID)
+
+	var exampleSetRecord model.ExampleSets
+	err = createExampleSetStmt.Query(db, &exampleSetRecord)
+	if err != nil {
+		return 0, err
+	}
+
+	exampleSetID := exampleSetRecord.ID
 
 	exampleNames := set.NewSet[string]()
 	for _, entry := range entries {
@@ -30,34 +47,34 @@ func processExamplesDir(versionID int, examplesDir string, db qrm.Executable) er
 		inPath := path.Join(examplesDir, name+".in")
 		inBytes, err := os.ReadFile(inPath)
 		if err != nil {
-			return err
+			return 0, err
 		}
 		inStr := string(inBytes)
 
 		ansPath := path.Join(examplesDir, name+".ans")
 		ansBytes, err := os.ReadFile(ansPath)
 		if err != nil {
-			return err
+			return 0, err
 		}
 		ansStr := string(ansBytes)
 
-		err = createExample(versionID, inStr, ansStr, db)
+		err = createExample(exampleSetID, inStr, ansStr, db)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 	}
-	return nil
+	return exampleSetID, nil
 }
 
-func createExample(versionID int, in, ans string, db qrm.Executable) error {
-	log.Printf("Creating example for task version %v", versionID)
+func createExample(exampleSetID int64, in, ans string, db qrm.Executable) error {
+	log.Printf("Creating example for task version %v", exampleSetID)
 	insertStmt := table.StatementExamples.INSERT(
-		table.StatementExamples.TaskVersionID,
+		table.StatementExamples.ExampleSetID,
 		table.StatementExamples.Input,
 		table.StatementExamples.Answer,
 	).VALUES(
-		versionID,
+		exampleSetID,
 		in,
 		ans,
 	)

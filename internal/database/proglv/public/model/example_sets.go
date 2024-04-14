@@ -11,11 +11,7 @@ import (
 	"time"
 )
 
-type Tasks struct {
-	ID               int64 `sql:"primary_key"`
-	CreatedAt        time.Time
-	CreatedByID      int64
-	CurrentVersionID *int64
-	StableVersionID  *int64
-	DeletedAt        *time.Time
+type ExampleSets struct {
+	ID        int64 `sql:"primary_key"`
+	CreatedAt time.Time
 }

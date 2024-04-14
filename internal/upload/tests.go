@@ -16,44 +16,58 @@ import (
 	"github.com/programme-lv/uploader/internal/database/proglv/public/table"
 )
 
-func processTestsDir(testDir string, uploader S3Uploader, db qrm.DB, versionID int) error {
+func processTestsDir(testDir string, uploader S3Uploader, db qrm.DB) (int64, error) {
 	tests, err := getTestNamesNoExt(testDir)
 	if err != nil {
-		return err
+		return 0, err
 	}
+
+	// create new test set
+	createTestSetStmt := table.TestSets.INSERT(
+		table.TestSets.CreatedAt,
+	).VALUES(postgres.NOW()).RETURNING(table.TestSets.ID)
+
+	var testSetRecord model.TestSets
+	err = createTestSetStmt.Query(db, &testSetRecord)
+	if err != nil {
+		return 0, err
+	}
+
+	testSetID := testSetRecord.ID
+
 	for _, test := range tests.ToSlice() {
 		inPath := filepath.Join(testDir, test+".in")
 		ansPath := filepath.Join(testDir, test+".ans")
 
 		inID, err := ensureTextFileExistsDBAndS3(inPath, uploader, db)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 		ansID, err := ensureTextFileExistsDBAndS3(ansPath, uploader, db)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
-		err = linkTaskVersionToTest(db, test, versionID, inID, ansID)
+		err = linkTaskVersionToTest(db, test, testSetID, inID, ansID)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 	}
-	return nil
+	return testSetID, nil
 }
 
-func linkTaskVersionToTest(db qrm.Executable, name string, versionID, inTextFileID, ansTextFileID int) error {
-	log.Printf("Linking test %v to task version %v", name, versionID)
-	insertStmt := table.TaskVersionTests.INSERT(
-		table.TaskVersionTests.TestFilename,
-		table.TaskVersionTests.TaskVersionID,
-		table.TaskVersionTests.InputTextFileID,
-		table.TaskVersionTests.AnswerTextFileID,
+func linkTaskVersionToTest(db qrm.Executable, name string, testSetID, inTextFileID, ansTextFileID int64) error {
+	log.Printf("Linking test %v to task version %v", name, testSetID)
+	insertStmt := table.TestSetTests.INSERT(
+		table.TestSetTests.TestFilename,
+		table.TestSetTests.TestSetID,
+		table.TestSetTests.InputTextFileID,
+		table.TestSetTests.AnswerTextFileID,
 	).VALUES(
 		name,
-		versionID,
+		testSetID,
 		inTextFileID,
 		ansTextFileID,
 	)
@@ -63,7 +77,7 @@ func linkTaskVersionToTest(db qrm.Executable, name string, versionID, inTextFile
 
 }
 
-func ensureTextFileExistsDBAndS3(path string, uploader S3Uploader, db qrm.DB) (int, error) {
+func ensureTextFileExistsDBAndS3(path string, uploader S3Uploader, db qrm.DB) (int64, error) {
 	sha256Hex, err := getFileSHA256Hex(path)
 	if err != nil {
 		return 0, err
@@ -124,7 +138,7 @@ func ensureTextFileExistsS3(uploader S3Uploader, sha256Hex string, content io.Re
 	return nil
 }
 
-func ensureTextFileRowExistsDB(db qrm.Queryable, sha256Hex string) (int, error) {
+func ensureTextFileRowExistsDB(db qrm.Queryable, sha256Hex string) (int64, error) {
 	log.Printf("Ensuring %v text file exists in DB", sha256Hex)
 
 	insertStmt := table.TextFiles.INSERT(
@@ -141,7 +155,7 @@ func ensureTextFileRowExistsDB(db qrm.Queryable, sha256Hex string) (int, error) 
 		return 0, err
 	}
 
-	return int(dest.ID), nil
+	return dest.ID, nil
 }
 
 func getFileSHA256Hex(path string) (string, error) {

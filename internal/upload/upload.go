@@ -35,7 +35,7 @@ func UploadTask(taskDir string, uploader S3Uploader, sqlxDB *sqlx.DB) error {
 
 	log.Println("VersionID:", versionID)
 
-	err = updateTaskRelevantVersionID(sqlxDB, taskID, versionID)
+	err = updateTaskCurrentVersionID(sqlxDB, taskID, versionID)
 	if err != nil {
 		log.Fatalf("Error updating task relevant version ID: %v", err)
 	}
@@ -54,38 +54,92 @@ func UploadTask(taskDir string, uploader S3Uploader, sqlxDB *sqlx.DB) error {
 	log.Println("Checker assigned to task version")
 
 	statementsDir := path.Join(taskDir, "statements")
-	err = processStatementDir(versionID, statementsDir, sqlxDB)
+	statementIDs, err := processStatementDir(statementsDir, sqlxDB)
 	if err != nil {
 		log.Fatalf("Error processing statement dir: %v", err)
 	}
 
+	if len(statementIDs) != 1 {
+		log.Fatalf("Expected 1 statement, got %v", len(statementIDs))
+	}
+
+	statementID := statementIDs[0]
+	err = assignMarkdownStatementToTaskVersion(sqlxDB, statementID, versionID)
+	if err != nil {
+		log.Fatalf("Error assigning markdown statement to task version: %v", err)
+	}
+
 	testDir := filepath.Join(taskDir, "tests")
-	err = processTestsDir(testDir, uploader, sqlxDB, versionID)
+	testSetID, err := processTestsDir(testDir, uploader, sqlxDB)
 	if err != nil {
 		log.Fatalf("Error processing tests dir: %v", err)
 	}
 
+	err = assignTestSetToTaskVersion(sqlxDB, testSetID, versionID)
+	if err != nil {
+		log.Fatalf("Error assigning test set to task version: %v", err)
+	}
+
 	examplesDir := path.Join(taskDir, "examples")
-	err = processExamplesDir(versionID, examplesDir, sqlxDB)
+	exampleSetID, err := processExamplesDir(examplesDir, sqlxDB)
 	if err != nil {
 		log.Fatalf("Error processing examples dir: %v", err)
+	}
+
+	// assign example set to task version
+	err = assignExampleSetToTaskVersion(sqlxDB, exampleSetID, versionID)
+	if err != nil {
+		log.Fatalf("Error assigning example set to task version: %v", err)
 	}
 
 	return nil
 }
 
-func updateTaskRelevantVersionID(db qrm.Executable, taskID, versionID int) error {
+func updateTaskCurrentVersionID(db qrm.Executable, taskID, versionID int64) error {
 	updateStmt := table.Tasks.UPDATE(
-		table.Tasks.RelevantVersionID,
+		table.Tasks.CurrentVersionID,
 	).SET(
 		versionID,
-	).WHERE(table.Tasks.ID.EQ(postgres.Int64(int64(taskID))))
+	).WHERE(table.Tasks.ID.EQ(postgres.Int64(taskID)))
 
 	_, err := updateStmt.Exec(db)
 	return err
 }
 
-func createTaskVersion(db qrm.Queryable, taskID int, problem Problem) (int, error) {
+func assignExampleSetToTaskVersion(db qrm.Executable, exampleSetID, versionID int64) error {
+	updateStmt := table.TaskVersions.UPDATE(
+		table.TaskVersions.ExampleSetID,
+	).SET(
+		exampleSetID,
+	).WHERE(table.TaskVersions.ID.EQ(postgres.Int64(int64(versionID))))
+
+	_, err := updateStmt.Exec(db)
+	return err
+}
+
+func assignTestSetToTaskVersion(db qrm.Executable, testSetID, versionID int64) error {
+	updateStmt := table.TaskVersions.UPDATE(
+		table.TaskVersions.TestSetID,
+	).SET(
+		testSetID,
+	).WHERE(table.TaskVersions.ID.EQ(postgres.Int64(int64(versionID))))
+
+	_, err := updateStmt.Exec(db)
+	return err
+}
+
+func assignMarkdownStatementToTaskVersion(db qrm.Executable, statementID, versionID int64) error {
+	updateStmt := table.TaskVersions.UPDATE(
+		table.TaskVersions.MdStatementID,
+	).SET(
+		statementID,
+	).WHERE(table.TaskVersions.ID.EQ(postgres.Int64(int64(versionID))))
+
+	_, err := updateStmt.Exec(db)
+	return err
+}
+
+func createTaskVersion(db qrm.Queryable, taskID int64, problem Problem) (int64, error) {
 	insertStmt := table.TaskVersions.INSERT(
 		table.TaskVersions.TaskID,
 		table.TaskVersions.ShortCode,
@@ -113,15 +167,15 @@ func createTaskVersion(db qrm.Queryable, taskID int, problem Problem) (int, erro
 		return 0, err
 	}
 
-	return int(dest.ID), nil
+	return dest.ID, nil
 }
 
-func createTask(db qrm.Queryable) (int, error) {
+func createTask(db qrm.Queryable) (int64, error) {
 	insertStmt := table.Tasks.INSERT(
 		table.Tasks.CreatedAt,
 		table.Tasks.CreatedByID,
-		table.Tasks.RelevantVersionID,
-		table.Tasks.PublishedVersionID,
+		table.Tasks.CurrentVersionID,
+		table.Tasks.StableVersionID,
 	).VALUES(
 		postgres.NOW(),
 		1,
@@ -135,6 +189,6 @@ func createTask(db qrm.Queryable) (int, error) {
 		return 0, err
 	}
 
-	return int(dest.ID), nil
+	return dest.ID, nil
 
 }

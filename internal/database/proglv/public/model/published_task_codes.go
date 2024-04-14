@@ -7,14 +7,7 @@
 
 package model
 
-import (
-	"time"
-)
-
-type TextFiles struct {
-	ID          int64 `sql:"primary_key"`
-	Sha256      string
-	Content     *string
-	CreatedAt   *time.Time
-	Compression string
+type PublishedTaskCodes struct {
+	TaskCode string `sql:"primary_key"`
+	TaskID   int32
 }
