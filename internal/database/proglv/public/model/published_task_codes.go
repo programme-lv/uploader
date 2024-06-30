@@ -9,5 +9,5 @@ package model
 
 type PublishedTaskCodes struct {
 	TaskCode string `sql:"primary_key"`
-	TaskID   int32
+	TaskID   int64
 }
