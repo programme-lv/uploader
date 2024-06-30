@@ -30,6 +30,8 @@ func processTestsDir(testDir string, uploader S3Uploader, db qrm.DB) (int64, err
 	var testSetRecord model.TestSets
 	err = createTestSetStmt.Query(db, &testSetRecord)
 	if err != nil {
+		// failed to create test set
+		log.Println("Failed to create test set")
 		return 0, err
 	}
 
